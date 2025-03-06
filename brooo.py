@@ -27,7 +27,7 @@ plyr2spd = 5
 plr2scr = 10
 plyr2die = False
 bullet_size = 20
-bullet_speed = 20
+bullet_speed = 30
 bullets = []
 new_player_bullets = []
 shoot_delay = 400
@@ -67,9 +67,17 @@ while running:
             if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
                 plyrpos[0] += plyrspd
                 break
+        for barricade in new_player_barricades:
+            if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
+                plyrpos[0] += plyrspd
+                break
     if keys[pygame.K_RIGHT] and plyrpos[0] < width - plyrsze:
         plyrpos[0] += plyrspd
         for barricade in player_barricades:
+            if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
+                plyrpos[0] -= plyrspd
+                break
+        for barricade in new_player_barricades:
             if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
                 plyrpos[0] -= plyrspd
                 break
@@ -79,9 +87,17 @@ while running:
             if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
                 plyrpos[1] += plyrspd
                 break
+        for barricade in new_player_barricades:
+            if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
+                plyrpos[1] += plyrspd
+                break
     if keys[pygame.K_DOWN] and plyrpos[1] < height - plyrsze:
         plyrpos[1] += plyrspd
         for barricade in player_barricades:
+            if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
+                plyrpos[1] -= plyrspd
+                break
+        for barricade in new_player_barricades:
             if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
                 plyrpos[1] -= plyrspd
                 break
@@ -91,24 +107,37 @@ while running:
             if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
                 plyr2pos[0] += plyr2spd
                 break
+        for barricade in player_barricades:
+            if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
+                plyr2pos[0] += plyr2spd
+                break
     if keys[pygame.K_d] and plyr2pos[0] < width - plyr2sze:
         plyr2pos[0] += plyr2spd
         for barricade in new_player_barricades:
             if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
                 plyr2pos[0] -= plyr2spd
                 break
+        for barricade in player_barricades:
+            if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
+                plyr2pos[0] -= plyr2spd
     if keys[pygame.K_w] and plyr2pos[1] > 0:
         plyr2pos[1] -= plyr2spd
         for barricade in new_player_barricades:
             if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
                 plyr2pos[1] += plyr2spd
                 break
+        for barricade in player_barricades:
+            if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
+                plyr2pos[1] += plyr2spd
     if keys[pygame.K_s] and plyr2pos[1] < height - plyr2sze:
         plyr2pos[1] += plyr2spd
         for barricade in new_player_barricades:
             if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
                 plyr2pos[1] -= plyr2spd
                 break
+        for barricade in player_barricades:
+            if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
+                plyr2pos[1] -= plyr2spd
     if keys[pygame.K_SPACE]:
         current_time = pygame.time.get_ticks()
         if current_time - last_shot_time > shoot_delay:
@@ -185,7 +214,7 @@ while running:
         plyrpos = [width // 2, height - 2 * plyrsze]
         plyr2pos = [width // 2, plyr2sze]
         
-        collision_text = font.render(f"YOU SUCK ASS: {personthatdied}", True, white)
+        collision_text = font.render(f"YOU SUCK: {personthatdied}", True, white)
         text_rect = collision_text.get_rect(center=(width // 2, height // 2))
         currdietime = 0
         #currdietime= pygame.time.get_ticks()
@@ -219,10 +248,10 @@ while running:
         pygame.draw.rect(screen, white, barricade)
 
     font = pygame.font.Font(None, 36)
-    player_score_text = font.render(f"nigga 1 life: {plyrscr}", True, white)
-    new_player_score_text = font.render(f"nigga 2 life: {plr2scr}", True, white)
-    plyrtimeswon = font.render(f"nigga 1 wins: {plyrtimeswonz}", True, white)
-    plyr2timeswon = font.render(f"nigga 1 wins: {plyr2timeswonz}", True, white)
+    player_score_text = font.render(f"plyr 1 life: {plyrscr}", True, white)
+    new_player_score_text = font.render(f"plyr 2 life: {plr2scr}", True, white)
+    plyrtimeswon = font.render(f"plyr 1 wins: {plyr2timeswonz}", True, white)
+    plyr2timeswon = font.render(f"plyr 2 wins: {plyrtimeswonz}", True, white)
     screen.blit(player_score_text, (10, 5))
     screen.blit(plyrtimeswon, (10, 30))
     screen.blit(new_player_score_text, (width - 200, 5))
@@ -238,3 +267,5 @@ while running:
     clock.tick(30)
 
 pygame.quit()
+
+
