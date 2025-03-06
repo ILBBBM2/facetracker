@@ -259,7 +259,7 @@ while running:
 
     current_time = pygame.time.get_ticks()
     if current_time - collision_time < collision_display_duration:
-        collision_text = font.render("No hugging allowed", True, white)
+        collision_text = font.render("KNIFED!!", True, white)
         text_rect = collision_text.get_rect(center=(width // 2, height // 2))
         screen.blit(collision_text, text_rect)
 
