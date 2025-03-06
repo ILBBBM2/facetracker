@@ -2,6 +2,11 @@ import pygame
 import time
 import random
 
+
+
+#NEW AGENDA: MAKE AMMO COUNTER
+
+
 pygame.init()
 current_time = 0
 width, height = 800, 600
