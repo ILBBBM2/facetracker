@@ -34,7 +34,7 @@ shoot_delay = 400
 last_shot_time = 0
 last_shot_time_new_player = 0
 barricade_width = 100
-barricade_height = 20
+barricade_height = 26
 
 player_barricades = [
     pygame.Rect(100, height - 5 * plyrsze, barricade_width, barricade_height),
