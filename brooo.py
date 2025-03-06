@@ -3,7 +3,7 @@ import time
 import random
 
 pygame.init()
-
+current_time = 0
 width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("dogass shooter")
@@ -146,7 +146,7 @@ while running:
     if keys[pygame.K_LSHIFT]:
         current_time = pygame.time.get_ticks()
         if current_time - last_shot_time_new_player > shoot_delay:
-            new_player_bullets.append([plyr2pos[0] + plyr2sze // 2, plyr2pos[1] + plyr2sze])
+            new_player_bullets.append([plyr2pos[0] + plyr2sze // 2, plyr2pos[1]])
             last_shot_time_new_player = current_time
 
     for bullet in bullets[:]:
