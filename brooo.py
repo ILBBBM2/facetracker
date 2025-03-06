@@ -259,9 +259,11 @@ while running:
 
     current_time = pygame.time.get_ticks()
     if current_time - collision_time < collision_display_duration:
-        collision_text = font.render("KNIFED!!", True, white)
+        screen.fill(white)
+        collision_text = font.render("KNIFED!!", True, black)
         text_rect = collision_text.get_rect(center=(width // 2, height // 2))
         screen.blit(collision_text, text_rect)
+        
 
     pygame.display.flip()
     clock.tick(30)
