@@ -146,54 +146,60 @@ while running:
     if keys[pygame.K_SPACE]:
         current_time = pygame.time.get_ticks()
         if current_time - last_shot_time > shoot_delay:
-            bullets.append([plyrpos[0] + plyrsze // 2, plyrpos[1]])
+            bullets.append(pygame.Rect(plyrpos[0] + plyrsze // 2, plyrpos[1], bullet_size // 2, bullet_size))
             last_shot_time = current_time
+            for barricade in player_barricades:
+                if barricade.colliderect(plyrpos[0], plyrpos[1], plyrsze, plyrsze):
+                    plyrpos[1] += plyrspd
+                    break
     if keys[pygame.K_LSHIFT]:
         current_time = pygame.time.get_ticks()
         if current_time - last_shot_time_new_player > shoot_delay:
-            new_player_bullets.append([plyr2pos[0] + plyr2sze // 2, plyr2pos[1]])
+            new_player_bullets.append(pygame.Rect(plyr2pos[0] + plyr2sze // 2, plyr2pos[1], bullet_size // 2, bullet_size))
             last_shot_time_new_player = current_time
+            for barricade in new_player_barricades:
+                if barricade.colliderect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze):
+                    plyr2pos[1] -= plyr2spd
+                    break
+
+    plyr_rect = pygame.Rect(plyrpos[0], plyrpos[1], plyrsze, plyrsze)
+    plyr2_rect = pygame.Rect(plyr2pos[0], plyr2pos[1], plyr2sze, plyr2sze)
 
     for bullet in bullets[:]:
-        bullet[1] -= bullet_speed
-        if bullet[1] < 0:
+        bullet.y -= bullet_speed
+        if bullet.y < 0:
             bullets.remove(bullet)
-        elif (plyr2pos[0] < bullet[0] < plyr2pos[0] + plyr2sze and
-              plyr2pos[1] < bullet[1] < plyr2pos[1] + plyr2sze):
+        elif bullet.colliderect(plyr2_rect):
             bullets.remove(bullet)
             plr2scr -= 1
         else:
             for barricade in new_player_barricades:
-                if barricade.collidepoint(bullet[0], bullet[1]):
+                if bullet.colliderect(barricade):
                     bullets.remove(bullet)
                     break
             for barricade in player_barricades:
-                if barricade.collidepoint(bullet[0], bullet[1]):
+                if bullet.colliderect(barricade):
                     bullets.remove(bullet)
                     break
 
     for bullet in new_player_bullets[:]:
-        bullet[1] += bullet_speed
-        if bullet[1] > height:
+        bullet.y += bullet_speed
+        if bullet.y > height:
             new_player_bullets.remove(bullet)
-        elif (plyrpos[0] < bullet[0] < plyrpos[0] + plyrsze and
-              plyrpos[1] < bullet[1] < plyrpos[1] + plyrsze):
+        elif bullet.colliderect(plyr_rect):
             new_player_bullets.remove(bullet)
             plyrscr -= 1
         else:
             for barricade in player_barricades:
-                if barricade.collidepoint(bullet[0], bullet[1]):
+                if bullet.colliderect(barricade):
                     new_player_bullets.remove(bullet)
                     break
             for barricade in new_player_barricades:
-                if barricade.collidepoint(bullet[0], bullet[1]):
+                if bullet.colliderect(barricade):
                     new_player_bullets.remove(bullet)
                     break
 
-    if (plyrpos[0] < plyr2pos[0] + plyr2sze and
-            plyrpos[0] + plyrsze > plyr2pos[0] and
-            plyrpos[1] < plyr2pos[1] + plyr2sze and
-            plyrpos[1] + plyrsze > plyr2pos[1]):
+    if plyr_rect.colliderect(plyr2_rect):
         plyrscr -= 1
         plr2scr -= 1
         plyrpos = [width // 2, height - 2 * plyrsze]
