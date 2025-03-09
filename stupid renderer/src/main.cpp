@@ -121,11 +121,7 @@ int main(void)
             isGrounded = true;
         }
 
-        if (IsKeyPressed(KEY_SPACE) && isGrounded)
-        {
-            playerVelocityY = jumpSpeed;
-            isGrounded = false;
-        }
+        
 
         // Update camera position without affecting the ability to look up and down
         camera.position.y = playerPosition.y + 1.0f;
