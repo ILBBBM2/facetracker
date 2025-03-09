@@ -186,11 +186,12 @@ int main(void)
             DrawLine(centerX, centerY - 10, centerX, centerY + 10, BLACK);
 
             
-            DrawText("Rendering objects.", 15, 15, 10, BLACK);
+            DrawText("Rendering objects...", 15, 15, 10, BLACK);
             DrawText(TextFormat("pos: (%06.3f, %06.3f, %06.3f)", camera.position.x, camera.position.y, camera.position.z), 610, 60, 10, BLACK);
             DrawText(TextFormat("tar: (%06.3f, %06.3f, %06.3f)", camera.target.x, camera.target.y, camera.target.z), 610, 75, 10, BLACK);
             DrawText(TextFormat("up: (%06.3f, %06.3f, %06.3f)", camera.up.x, camera.up.y, camera.up.z), 610, 90, 10, BLACK);
-            DrawText(TextFormat("fps(%06.3f)", GetFPS()), 15, 30, 10, BLACK);
+            DrawText("press ESC to leave", 15, 30, 10, BLACK);
+            
 
         EndDrawing();
     }
