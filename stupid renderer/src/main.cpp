@@ -37,19 +37,18 @@ int main(void)
 
     int cameraMode = CAMERA_FIRST_PERSON;
 
-    // Define the moving pillar
+    
     Vector3 pillarPosition = { 0.0f, 1.0f, 0.0f };
     float pillarHeight = 2.0f;
     float pillarWidth = 1.0f;
     float pillarDepth = 1.0f;
     float pillarSpeed = 2.0f;
 
-    // Player variables
+    
     Vector3 playerPosition = { 0.0f, 1.0f, 0.0f };
     float playerVelocityY = 0.0f;
     const float gravity = -9.81f;
-    const float jumpSpeed = 5.0f;
-    bool isGrounded = true;
+    
 
     // Floating red boxes
     std::vector<Box> redBoxes;
@@ -60,7 +59,7 @@ int main(void)
     DisableCursor();
     SetTargetFPS(60);
 
-    // Game loop
+    
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_F1))
@@ -118,18 +117,18 @@ int main(void)
         {
             playerPosition.y = 1.0f;
             playerVelocityY = 0.0f;
-            isGrounded = true;
+            
         }
 
         
 
-        // Update camera position without affecting the ability to look up and down
+        
         camera.position.y = playerPosition.y + 1.0f;
 
         playerPosition.x = camera.position.x;
         playerPosition.z = camera.position.z;
 
-        // Shooting logic
+        
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
             Ray ray = GetMouseRay((Vector2){screenWidth / 2, screenHeight / 2}, camera);
@@ -145,7 +144,7 @@ int main(void)
             redBoxes.erase(std::remove_if(redBoxes.begin(), redBoxes.end(), [](const Box& box) { return !box.isActive; }), redBoxes.end());
         }
 
-        // Render cycle
+        
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
@@ -156,15 +155,15 @@ int main(void)
                 DrawCube((Vector3){ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE); // Blue wall
                 DrawCube((Vector3){ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME); // Green wall
                 DrawCube((Vector3){ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD); // Yellow wall
-                // Draw the moving pillar
+                
                 DrawCube(pillarPosition, pillarWidth, pillarHeight, pillarDepth, RED);
                 DrawCubeWires(pillarPosition, pillarWidth, pillarHeight, pillarDepth, MAROON);
 
-                // Draw player cube
+                //player daraw
                 DrawCube(playerPosition, 0.5f, 0.5f, 0.5f, PURPLE);
                 DrawCubeWires(playerPosition, 0.5f, 0.5f, 0.5f, DARKPURPLE);
 
-                // Draw floating red boxes
+                //redbox
                 for (const auto& box : redBoxes)
                 {
                     if (box.isActive)
@@ -180,13 +179,13 @@ int main(void)
 
             EndMode3D();
 
-            // Draw crosshair
+            //crosshair
             int centerX = screenWidth / 2;
             int centerY = screenHeight / 2;
             DrawLine(centerX - 10, centerY, centerX + 10, centerY, BLACK);
             DrawLine(centerX, centerY - 10, centerX, centerY + 10, BLACK);
 
-            // Draw info boxes
+            
             DrawText("Rendering objects.", 15, 15, 10, BLACK);
             DrawText(TextFormat("pos: (%06.3f, %06.3f, %06.3f)", camera.position.x, camera.position.y, camera.position.z), 610, 60, 10, BLACK);
             DrawText(TextFormat("tar: (%06.3f, %06.3f, %06.3f)", camera.target.x, camera.target.y, camera.target.z), 610, 75, 10, BLACK);
