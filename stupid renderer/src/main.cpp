@@ -25,50 +25,39 @@ int main(void)
 {
     //rerun comment ss
     int screenWidth = 800;
-    int screenHeight = 600;
-    
+    int screenHeight = 600; 
     InitWindow(screenWidth, screenHeight, "hawk tuah!");
-    
     Texture2D boxTexture = LoadTexture("box.png");
     Mesh cubeMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
     Model boxModel = LoadModelFromMesh(cubeMesh);
-    boxModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = boxTexture;
-    
+    boxModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = boxTexture;   
     Camera camera = { 0 };
-    camera.position = (Vector3){ 0.0f, 2.0f, 4.0f };    //cam pos
-    camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      //cam ray to target
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          //rot towards target
-    camera.fovy = 60.0f;                                //cam FOV y
-    camera.projection = CAMERA_PERSPECTIVE;             //type
-
+    camera.position = (Vector3){ 0.0f, 2.0f, 4.0f };   
+    camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          
+    camera.fovy = 60.0f;                                
+    camera.projection = CAMERA_PERSPECTIVE;             
     int cameraMode = CAMERA_FIRST_PERSON;
-    
-    // Define the moving pillar
     Vector3 pillarPosition = { 0.0f, 1.0f, 0.0f };
     float pillarHeight = 2.0f;
     float pillarWidth = 1.0f;
     float pillarDepth = 1.0f;
     float pillarSpeed = 2.0f;
-
-    // Player variables
     Vector3 playerPosition = { 0.0f, 1.0f, 0.0f };
     float playerVelocityY = 0.0f;
-    const float gravity = -9.81f;
-    
+    const float gravity = -9.81f;   
     float actualsens = 1;
     float shots = 0;
     float hits = 0;
     float accuracy = 100;
-    // Floating red boxes
     std::vector<Box> redBoxes;
     for (int i = 0; i < 5; i++) {
         redBoxes.push_back({ (Vector3){ GetRandomValue(-10, 10), GetRandomValue(2, 5), GetRandomValue(-10, 10) }, true });
     }
-
     DisableCursor();
     SetTargetFPS(300);
 
-    // Game loop
+    
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_F1))
@@ -76,7 +65,6 @@ int main(void)
             cameraMode = CAMERA_FIRST_PERSON;
             camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
         }
-
         if (IsKeyPressed(KEY_F2))
         {
             cameraMode = CAMERA_ORBITAL;
@@ -136,7 +124,7 @@ int main(void)
 
         UpdateCamera(&camera, cameraMode);
         
-        // Handle looking up and down
+        
         if (cameraMode == CAMERA_FIRST_PERSON)
         {
             Vector2 mouseDelta = GetMouseDelta();
@@ -158,17 +146,14 @@ int main(void)
         playerVelocityY += gravity * GetFrameTime();
         playerPosition.y += playerVelocityY * GetFrameTime();
 
-        // Collision with ground
+        //collision with ground
         if (playerPosition.y <= 1.0f)
         {
             playerPosition.y = 1.0f;
             playerVelocityY = 0.0f;
             
         }
-
         
-
-        // Update camera position without affecting the ability to look up and down
         if(cameraMode == CAMERA_FIRST_PERSON){
             camera.position.y = playerPosition.y + 1.0f;
 
@@ -179,7 +164,7 @@ int main(void)
         //playerPosition.x = camera.position.x;
         //playerPosition.z = camera.position.z;
 
-        // Shooting logic
+        //shots
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
             if(cameraMode == CAMERA_FIRST_PERSON){
@@ -196,7 +181,7 @@ int main(void)
                     box.isActive = false;
                     hits += 1;
                     
-                    // Respawn the box at a new random location
+                    
                     box.position = (Vector3){ GetRandomValue(-10, 10), GetRandomValue(2, 5), GetRandomValue(-10, 10) };
                     box.isActive = true;
                 }
@@ -207,7 +192,7 @@ int main(void)
         if(shots > 0){
             accuracy = (hits/shots) * 100;
         }
-        // Render cycle
+        
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
@@ -218,15 +203,15 @@ int main(void)
                 DrawCube((Vector3){ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE); // Blue wall
                 DrawCube((Vector3){ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME); // Green wall
                 DrawCube((Vector3){ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD); // Yellow wall
-                // Draw the moving pillar
+                //the moving pillar
                 DrawCube(pillarPosition, pillarWidth, pillarHeight, pillarDepth, RED);
                 DrawCubeWires(pillarPosition, pillarWidth, pillarHeight, pillarDepth, MAROON);
 
-                // Draw player cube
+                //player cube
                 DrawCube(playerPosition, 0.5f, 0.5f, 0.5f, PURPLE);
                 DrawCubeWires(playerPosition, 0.5f, 0.5f, 0.5f, DARKPURPLE);
 
-                // Draw floating red boxes
+                //floating red boxes
                 for (const auto& box : redBoxes)
                 {
                     if (box.isActive)
@@ -236,20 +221,20 @@ int main(void)
                     }
                 }
 
-                // Draw debug ray
+                //debug ray
                 Ray ray = GetMouseRay((Vector2){screenWidth / 2, screenHeight / 2}, camera);
                 DrawRay(ray, GREEN);
 
             EndMode3D();
 
-            // Draw crosshair
+            //crosshair
             int centerX = screenWidth / 2;
             int centerY = screenHeight / 2;
             DrawLine(centerX - 10, centerY, centerX + 10, centerY, BLACK);
             DrawLine(centerX, centerY - 10, centerX, centerY + 10, BLACK);
 
-            // Draw info boxes
-            DrawText("Rendering objects...", 15, 15, 10, BLACK);
+            //info boxes
+            DrawText("john romero is my bitch", 15, 5, 20, BLACK);
             DrawText(TextFormat("pos: (%06.3f, %06.3f, %06.3f)", camera.position.x, camera.position.y, camera.position.z), 610, 60, 10, BLACK);
             DrawText(TextFormat("tar: (%06.3f, %06.3f, %06.3f)", camera.target.x, camera.target.y, camera.target.z), 610, 75, 10, BLACK);
             DrawText(TextFormat("up: (%06.3f, %06.3f, %06.3f)", camera.up.x, camera.up.y, camera.up.z), 610, 90, 10, BLACK);
@@ -260,8 +245,8 @@ int main(void)
         EndDrawing();
     }
 
-    UnloadTexture(boxTexture); // Unload texture
-    UnloadModel(boxModel); // Unload model
+    UnloadTexture(boxTexture); //Unload texture
+    UnloadModel(boxModel); //Unload model
     CloseWindow();
 
     return 0;
