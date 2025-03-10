@@ -1,7 +1,6 @@
 #include "raylib.h"
 #include "rcamera.h"
 #include "raymath.h"
-#include "rtextures.c"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -24,13 +23,17 @@ bool CheckRayCollisionBox(Ray ray, BoundingBox box) {
 
 int main(void)
 {
-    const int screenWidth = 800;
-    const int screenHeight = 600;
+    //rerun comment ss
+    int screenWidth = 800;
+    int screenHeight = 600;
     
     InitWindow(screenWidth, screenHeight, "hawk tuah!");
     
-    TextureCubemap LoadTextureCubemap(Image image, int layout); 
-    Image image = LoadImage("assets/box.png");
+    Texture2D boxTexture = LoadTexture("box.png");
+    Mesh cubeMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
+    Model boxModel = LoadModelFromMesh(cubeMesh);
+    boxModel.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = boxTexture;
+    
     Camera camera = { 0 };
     camera.position = (Vector3){ 0.0f, 2.0f, 4.0f };    //cam pos
     camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      //cam ray to target
@@ -94,6 +97,18 @@ int main(void)
             shots = 0;
             hits = 0;
             accuracy = 100;
+        }
+        if(IsKeyPressed(KEY_F9)){
+            SetWindowSize(1920, 1080);
+            SetWindowPosition(0, 0);
+            screenWidth = 1920;
+            screenHeight = 1080;
+        }
+        if(IsKeyPressed(KEY_F10)){
+            SetWindowSize(800, 600);
+            SetWindowPosition(1920/4 + 100, 1080/4);
+            screenWidth = 800;
+            screenHeight = 600;
         }
         if (IsKeyPressed(KEY_P))
         {
@@ -216,7 +231,7 @@ int main(void)
                 {
                     if (box.isActive)
                     {
-                        DrawCube(box.position, 1.0f, 1.0f, 1.0f, RED);
+                        DrawModel(boxModel, box.position, 1.0f, WHITE);
                         DrawCubeWires(box.position, 1.0f, 1.0f, 1.0f, DARKPURPLE);
                     }
                 }
@@ -245,6 +260,8 @@ int main(void)
         EndDrawing();
     }
 
+    UnloadTexture(boxTexture); // Unload texture
+    UnloadModel(boxModel); // Unload model
     CloseWindow();
 
     return 0;
