@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "rcamera.h"
 #include "raymath.h"
+#include "rtextures.c"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -25,9 +26,11 @@ int main(void)
 {
     const int screenWidth = 800;
     const int screenHeight = 600;
-
+    
     InitWindow(screenWidth, screenHeight, "hawk tuah!");
-
+    
+    TextureCubemap LoadTextureCubemap(Image image, int layout); 
+    Image image = LoadImage("assets/box.png");
     Camera camera = { 0 };
     camera.position = (Vector3){ 0.0f, 2.0f, 4.0f };    //cam pos
     camera.target = (Vector3){ 0.0f, 2.0f, 0.0f };      //cam ray to target
@@ -36,20 +39,23 @@ int main(void)
     camera.projection = CAMERA_PERSPECTIVE;             //type
 
     int cameraMode = CAMERA_FIRST_PERSON;
-
     
+    // Define the moving pillar
     Vector3 pillarPosition = { 0.0f, 1.0f, 0.0f };
     float pillarHeight = 2.0f;
     float pillarWidth = 1.0f;
     float pillarDepth = 1.0f;
     float pillarSpeed = 2.0f;
 
-    
+    // Player variables
     Vector3 playerPosition = { 0.0f, 1.0f, 0.0f };
     float playerVelocityY = 0.0f;
     const float gravity = -9.81f;
     
-
+    float actualsens = 1;
+    float shots = 0;
+    float hits = 0;
+    float accuracy = 100;
     // Floating red boxes
     std::vector<Box> redBoxes;
     for (int i = 0; i < 5; i++) {
@@ -57,9 +63,9 @@ int main(void)
     }
 
     DisableCursor();
-    SetTargetFPS(60);
+    SetTargetFPS(300);
 
-    
+    // Game loop
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_F1))
@@ -73,7 +79,22 @@ int main(void)
             cameraMode = CAMERA_ORBITAL;
             camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
         }
-
+        if (IsKeyPressed(KEY_PERIOD)){
+            if(actualsens > 0){
+                actualsens += 1;
+                //std::cout << "worked";
+            }
+        }
+        if(IsKeyPressed(KEY_COMMA)){
+            if(actualsens > 0){
+                actualsens -= 1;
+            }
+        }
+        if(IsKeyPressed(KEY_R)){
+            shots = 0;
+            hits = 0;
+            accuracy = 100;
+        }
         if (IsKeyPressed(KEY_P))
         {
             if (camera.projection == CAMERA_PERSPECTIVE)
@@ -99,9 +120,19 @@ int main(void)
         }
 
         UpdateCamera(&camera, cameraMode);
-
-        // Handle looking up and down
         
+        // Handle looking up and down
+        if (cameraMode == CAMERA_FIRST_PERSON)
+        {
+            Vector2 mouseDelta = GetMouseDelta();
+            float sensitivity = 0.005f;
+            //std::cout<<actualsens;
+            
+            sensitivity = actualsens * 0.0005f;
+            //std::cout << sensitivity;
+            camera.target = Vector3Add(camera.target, Vector3Scale(camera.up, -mouseDelta.y * sensitivity));
+            camera.target = Vector3Add(camera.target, Vector3Scale(Vector3CrossProduct(camera.up, Vector3Subtract(camera.target, camera.position)), -mouseDelta.x * sensitivity));
+        }
 
         pillarPosition.x += pillarSpeed * GetFrameTime();
         if (pillarPosition.x > 15.0f || pillarPosition.x < -15.0f)
@@ -122,29 +153,46 @@ int main(void)
 
         
 
-        
-        camera.position.y = playerPosition.y + 1.0f;
+        // Update camera position without affecting the ability to look up and down
+        if(cameraMode == CAMERA_FIRST_PERSON){
+            camera.position.y = playerPosition.y + 1.0f;
 
-        playerPosition.x = camera.position.x;
-        playerPosition.z = camera.position.z;
+            playerPosition.x = camera.position.x;
+            playerPosition.z = camera.position.z;
+        }
+        //camera.position.y = playerPosition.y + 1.0f;
+        //playerPosition.x = camera.position.x;
+        //playerPosition.z = camera.position.z;
 
-        
+        // Shooting logic
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            Ray ray = GetMouseRay((Vector2){screenWidth / 2, screenHeight / 2}, camera);
+            if(cameraMode == CAMERA_FIRST_PERSON){
+                Ray ray = GetMouseRay((Vector2){screenWidth / 2, screenHeight / 2}, camera);
+            shots += 1;
+            
             for (auto& box : redBoxes)
             {
                 BoundingBox boxBounds = { (Vector3){ box.position.x - 0.5f, box.position.y - 0.5f, box.position.z - 0.5f },
                                           (Vector3){ box.position.x + 0.5f, box.position.y + 0.5f, box.position.z + 0.5f } };
                 if (box.isActive && CheckRayCollisionBox(ray, boxBounds))
                 {
+                    
                     box.isActive = false;
+                    hits += 1;
+                    
+                    // Respawn the box at a new random location
+                    box.position = (Vector3){ GetRandomValue(-10, 10), GetRandomValue(2, 5), GetRandomValue(-10, 10) };
+                    box.isActive = true;
                 }
             }
-            redBoxes.erase(std::remove_if(redBoxes.begin(), redBoxes.end(), [](const Box& box) { return !box.isActive; }), redBoxes.end());
+            }
+            
         }
-
-        
+        if(shots > 0){
+            accuracy = (hits/shots) * 100;
+        }
+        // Render cycle
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
@@ -155,15 +203,15 @@ int main(void)
                 DrawCube((Vector3){ -16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, BLUE); // Blue wall
                 DrawCube((Vector3){ 16.0f, 2.5f, 0.0f }, 1.0f, 5.0f, 32.0f, LIME); // Green wall
                 DrawCube((Vector3){ 0.0f, 2.5f, 16.0f }, 32.0f, 5.0f, 1.0f, GOLD); // Yellow wall
-                
+                // Draw the moving pillar
                 DrawCube(pillarPosition, pillarWidth, pillarHeight, pillarDepth, RED);
                 DrawCubeWires(pillarPosition, pillarWidth, pillarHeight, pillarDepth, MAROON);
 
-                //player daraw
+                // Draw player cube
                 DrawCube(playerPosition, 0.5f, 0.5f, 0.5f, PURPLE);
                 DrawCubeWires(playerPosition, 0.5f, 0.5f, 0.5f, DARKPURPLE);
 
-                //redbox
+                // Draw floating red boxes
                 for (const auto& box : redBoxes)
                 {
                     if (box.isActive)
@@ -179,19 +227,20 @@ int main(void)
 
             EndMode3D();
 
-            //crosshair
+            // Draw crosshair
             int centerX = screenWidth / 2;
             int centerY = screenHeight / 2;
             DrawLine(centerX - 10, centerY, centerX + 10, centerY, BLACK);
             DrawLine(centerX, centerY - 10, centerX, centerY + 10, BLACK);
 
-            
+            // Draw info boxes
             DrawText("Rendering objects...", 15, 15, 10, BLACK);
             DrawText(TextFormat("pos: (%06.3f, %06.3f, %06.3f)", camera.position.x, camera.position.y, camera.position.z), 610, 60, 10, BLACK);
             DrawText(TextFormat("tar: (%06.3f, %06.3f, %06.3f)", camera.target.x, camera.target.y, camera.target.z), 610, 75, 10, BLACK);
             DrawText(TextFormat("up: (%06.3f, %06.3f, %06.3f)", camera.up.x, camera.up.y, camera.up.z), 610, 90, 10, BLACK);
+            DrawText(TextFormat("sens: (%06.3f)", actualsens), 15, 45, 10, BLACK);
+            DrawText(TextFormat("accuracy: (%06.3f)", accuracy), 15, 55, 10, BLACK);
             DrawText("press ESC to leave", 15, 30, 10, BLACK);
-            
 
         EndDrawing();
     }
